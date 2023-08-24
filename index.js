@@ -25,6 +25,8 @@ async function run() {
 
     // all collection here
     const usersCollection = client.db("jerinPerler").collection("users");
+    const servicesCollection = client.db("jerinPerler").collection("services");
+    const cartCollection = client.db("jerinPerler").collection("carts");
 
     // users api
     app.put("/users/:email", async (req, res) => {
@@ -72,6 +74,39 @@ async function run() {
       console.log(result);
       res.send(result)
     })
+    // service section api
+    app.post("/services", async (req, res) => {
+      const newItem = req.body;
+      const result = await servicesCollection.insertOne(newItem);
+      res.send(result);
+    });
+    app.get("/services", async (req, res) => {
+      const result = await servicesCollection.find().toArray();
+      res.send(result);
+    });
+    // cart api secrtin 
+    app.post("/carts", async (req, res) => {
+      const item = req.body;
+      console.log(item);
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/cartsAll", async (req, res) => {
+      const result = await cartCollection.find().toArray();
+      res.send(result);
+    });
+    app.delete("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    });
     await client.db("admin").command({ ping: 1 });
     console.log("Jerin Perler server successfully connected to MongoDB!");
   } finally {
